@@ -1,0 +1,16 @@
+{
+  "name": "mqtt-bridge",
+  "version": "1.0.0",
+  "description": "Bridging application to forward MQTT packets in one format to another",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "influx": "^5.0.7",
+    "mqtt": "^2.13.0",
+    "request": "^2.81.0"
+  }
+}
