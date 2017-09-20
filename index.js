@@ -51,6 +51,7 @@ function map_insert(topic, payload){
 				measurement: topic_arr[0]+topic_arr[2]+"_"+channel.id,
 				tags: { topic:topic, location: topic_arr[1] },
 				fields: dataset,
+				timestamp: dataset['TS']*1000000000
 			}
 		])
 		.then(function(){

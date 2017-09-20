@@ -10,6 +10,7 @@ influx.writePoints([
   {
     measurement: 'response_times',
     tags: { host: os.hostname() },
-    fields: { duration:2.12345, path: "zgod.local" },
+    fields: { duration:3, path: "zgod.local" },
+    timestamp: 1505925836.9*1000000000
   }
 ])
