@@ -49,15 +49,17 @@ function map_insert(topic, payload){
 		influx.writePoints([
 			{
 				measurement: topic_arr[0]+topic_arr[2]+"_"+channel.id,
-				tags: { topic:topic, location: topic_arr[1] },
+				tags: { topic:topic, location: topic_arr[1], sensor_id: topic_arr[3] },
 				fields: dataset,
 				timestamp: dataset['TS']*1000000000
 			}
 		])
 		.then(function(){
-			console.log("Inserted")
+			//console.log("Inserted")
 		})
 	}
+	else
+		console.log("API length mismatch")
 
 }
 
@@ -66,10 +68,12 @@ function mqtt_init(){
 
 	client.on('connect', function () {
   		client.subscribe('data/#',{qos:0}) //default qos0
+		client.subscribe('nodemcu/#',{qos:0}) //default qos0
 	})
 	 
 	client.on('message', function (topic, message) {
 	  // message is Buffer
+		console.log(topic)
 	  map_insert(topic,message.toString())
 	})
 }

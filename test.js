@@ -1,16 +1,15 @@
-const Influx = require('influx');
-var os = require('os')
-const influx = new Influx.InfluxDB({
- host: '10.129.23.161',
- database: 'express_response_db',
+var mqtt = require('mqtt');
+
+var client  = mqtt.connect('mqtt://10.129.23.41',{clientId:"mqtt-bridge-influx-test"})
+
+client.on('connect', function () {
+
+	client.subscribe('nodemcu/#',{qos:0}) //default qos0
+})
+ 
+client.on('message', function (topic, message) {
+  // message is Buffer
+	console.log(topic)
+	console.log(message.toString())
 
 })
-
-influx.writePoints([
-  {
-    measurement: 'response_times',
-    tags: { host: os.hostname() },
-    fields: { duration:3, path: "zgod.local" },
-    timestamp: 1505925836.9*1000000000
-  }
-])
