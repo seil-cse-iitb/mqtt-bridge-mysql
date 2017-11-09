@@ -1,0 +1,22 @@
+module.exports = {
+    'secret': 'secret',
+    'salt':10,
+    'mqtt':{
+        'url':"mqtt://test.mosquitto.org",
+        'port':1833,
+        'username':'username',
+        'password':'password',
+        'clientId': 'material-mean-boilerplate'
+    },
+    'database':{
+        "mongo":{
+            'URI': "mongodb://10.129.23.41/classroom_portal"
+        },
+        "mysql":{
+            'host':'localhost',
+            'name':'database',
+            'username':'username',
+            'password':'password'
+        }  
+    }
+};

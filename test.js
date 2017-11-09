@@ -1,15 +1,28 @@
-var mqtt = require('mqtt');
+const Sequelize = require('sequelize');
+const config = require('./config')
 
-var client  = mqtt.connect('mqtt://10.129.23.41',{clientId:"mqtt-bridge-influx-test"})
+const sequelize = new Sequelize(config.database.mysql.name, config.database.mysql.username, config.database.mysql.password, {
+  host: config.database.mysql.host,
+  dialect: 'mysql',
+  pool: {
+    max: 5,
+    min: 0,
+    acquire: 30000,
+    idle: 10000
+  },
+  // http://docs.sequelizejs.com/manual/tutorial/querying.html#operators
+  operatorsAliases: false
+});
+const User = sequelize.define('user', {
+  username: Sequelize.STRING,
+  birthday: Sequelize.DATE
+});
 
-client.on('connect', function () {
-
-	client.subscribe('nodemcu/#',{qos:0}) //default qos0
-})
- 
-client.on('message', function (topic, message) {
-  // message is Buffer
-	console.log(topic)
-	console.log(message.toString())
-
-})
+sequelize.sync()
+  .then(() => User.create({
+    username: 'janedoe',
+    birthday: new Date(1980, 6, 20)
+  }))
+  .then(jane => {
+    console.log(jane.toJSON());
+  });
