@@ -1,2 +1,5 @@
 node_modules
 config.js
+config.py
+__pycache__/
+.idea/
