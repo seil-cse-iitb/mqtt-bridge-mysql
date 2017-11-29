@@ -3,3 +3,4 @@ config.js
 config.py
 __pycache__/
 .idea/
+*.pyc

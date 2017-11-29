@@ -1,4 +1,4 @@
-import requests
+from urllib2 import Request, URLError, urlopen
 import json
 import mysql.connector
 from mysql.connector import errorcode
@@ -42,8 +42,8 @@ class SeilChannel:
 		# load channels
 		url = API_ROOT + "channels/"
 		try:
-			response = requests.get(url)
-			all_channels = json.loads(response.text)
+			response = urlopen(url)
+			all_channels = json.loads(response.read())
 			for channel in all_channels:
 				if channel['id'] == self.id:
 					self.sensor_type = channel['sensor_type']
@@ -52,40 +52,46 @@ class SeilChannel:
 
 			# Fetch field info for this channel
 			url = API_ROOT + 'channel/%d' % self.id
-			self.fields = json.loads(requests.get(url).text)
+			self.fields = json.loads(urlopen(url).read())
 
 		except Exception as e:
-			print(e.__traceback__)
+			print(e)
 
 		# Load sensors
 		url = API_ROOT + "sensors/"
 		try:
-			response = requests.get(url)
-			self.sensors = json.loads(response.text)
+			response = urlopen(url)
+			self.sensors = json.loads(response.read())
 		except Exception as e:
-			print(e.__traceback__)
+			print(e)
 
-	def __prepare_insert_query(self):
-		self.insert_query = "INSERT INTO %s (sensor_id, " % (self.table_name)
-		self.insert_query += ', '.join(f['field_name'] for f in self.fields) + ") VALUES (%s, "
-		self.insert_query += ', '.join( "%s" for f in self.fields) + ")"
-		return self.insert_query
+	def __prepare_insert_stmt(self):
+		self.insert_stmt = "INSERT INTO %s (sensor_id, " % (self.table_name)
+		self.insert_stmt += ', '.join(f['field_name'] for f in self.fields) + ") VALUES (%s, "
+		self.insert_stmt += ', '.join( "%s" for f in self.fields) + ")"
+		return self.insert_stmt
 
 	def __init__(self, channel_id):
 
 		self.id = channel_id
 		self.__load_channel()
 		self.__init_table()
-		self.__prepare_insert_query()
-		self.inserts=[]
+		self.__prepare_insert_stmt()
+		self.datapoints=[]
 
-	def push_tuple(self, datapoints):
-		if len(datapoints) != len(self.fields):
+	def push_tuple(self, datapoint):
+		if len(datapoint) != len(self.fields) +1 : # fields + sensor_id
 			print("Datapoint number mismatch")
 			return False
 
-		self.inserts.append(self.insert_query % datapoints)
+		self.datapoints.append(datapoint)
 		return True
 
 	def commit(self):
-		pass
+		try:
+			self.cursor.executemany(self.insert_stmt, self.datapoints)
+			self.cnx.commit()
+			return True
+		except Exception as e:
+			print(e)
+			return False
